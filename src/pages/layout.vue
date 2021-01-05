@@ -35,7 +35,7 @@
               <Icon type="ios-arrow-down"></Icon>
             </a>
             <DropdownMenu slot="list">
-              <DropdownItem>个人资料</DropdownItem>
+              <DropdownItem @click.native="readInfo">个人资料</DropdownItem>
               <DropdownItem>修改密码</DropdownItem>
               <DropdownItem @click.native="logout">安全退出</DropdownItem>
             </DropdownMenu>
@@ -90,38 +90,45 @@ export default {
       mainMenus: [
         // 主菜单项配置
         {
-          title: "内容管理",
+          title: "基本信息",
           item: [
             {
               name: 1,
+              type: "md-chatbubbles",
+              text: "个人资料",
+              path: "/index",
+            },
+          ],
+        },
+        {
+          title: "内容管理",
+          item: [
+            {
+              name: 2,
               type: "md-chatbubbles",
               text: "用户管理",
               path: "/user",
             },
             {
-              name: 2,
+              name: 3,
               type: "md-chatbubbles",
               text: "文章管理",
               path: "/article",
             },
             {
-              name: 3,
+              name: 4,
               type: "md-chatbubbles",
               text: "类别管理",
               path: "/type",
             },
-            { name: 4, type: "md-chatbubbles", text: "标签管理", path: "/tag" },
+            { name: 5, type: "md-chatbubbles", text: "标签管理", path: "/tag" },
             {
-              name: 5,
+              name: 6,
               type: "md-chatbubbles",
               text: "相册管理",
               path: "/album",
             },
           ],
-        },
-        {
-          title: "其他操作",
-          item: [{ name: 6, type: "md-chatbubbles", text: "其他" }],
         },
       ],
       topActive: 0,
@@ -140,10 +147,14 @@ export default {
     },
     // 监听侧边导航改变
     handleSliderSelect(e) {
-      const path = this.mainMenus[0].item[e - 1].path;
-      if (this.$route.path === path) return console.log("已是当前路由");
-      // 跳转
-      this.$router.push({ path });
+      let p = this.mainMenus.map((item) => item.item).flat()[e - 1].path;
+      if (this.$route.path === p) return console.log("已是当前路由");
+      this.$router.push(p);
+    },
+    // 查看个人资料
+    readInfo() {
+      if (this.$route.path === "/index") return;
+      this.$router.push({ name: "index" });
     },
     // 退出登录
     logout() {

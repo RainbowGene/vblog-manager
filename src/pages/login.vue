@@ -90,7 +90,7 @@ export default {
             } else {
               // 存储登录状态
               this.$store.dispatch("login", res.data);
-              console.log(res);
+              // console.log(res);
               // 跳转
               this.$router.push({ name: "layout" });
             }

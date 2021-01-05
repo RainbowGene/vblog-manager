@@ -17,21 +17,8 @@
     <!-- 内容表格 -->
     <div class="content-table">
       <Table :columns="columns" :data="list"></Table>
-
       <!-- 加载效果 -->
-      <div
-        v-if="loading"
-        style="
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 0;
-          bottom: 0;
-          overflow-y: auto;
-        "
-      >
-        <div class="text-center text-secondary pt-5 mt-5">加载中...</div>
-      </div>
+      <Spin v-if="loading" fix></Spin>
     </div>
 
     <!-- 表格部分 -->
@@ -45,6 +32,7 @@
         show-sizer
         @on-change="pageChange"
         @on-page-size-change="psChange"
+        :page-size-opts="[5, 8, 10]"
       ></Page>
     </div>
   </div>
@@ -62,7 +50,7 @@ export default {
       ],
       loading: false,
       page: 1,
-      limit: 10,
+      limit: 8,
       total: 0, // 总条数
     };
   },
@@ -124,6 +112,7 @@ export default {
   }
 }
 .content-table {
+  position: relative;
   padding: 10px;
   margin-top: 50px;
 }

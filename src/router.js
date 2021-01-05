@@ -21,8 +21,10 @@ const router = new Router({
     }, {
       path: '/user', name: 'user', component: () => import('./pages/template/user.vue')
     }, {
-      path: '/article', name: 'article', component: () => import('./pages/template/article.vue')
-    }, {
+      path: '/article', name: 'article', component: () => import('./pages/template/article/article.vue'),
+    },
+    { path: '/add', name: 'addArticle', component: () => import('./pages/template/article/add.vue') },
+    {
       path: '/type', name: 'type', component: () => import('./pages/template/type.vue')
     }, {
       path: '/album', name: 'album', component: () => import('./pages/template/album.vue')

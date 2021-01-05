@@ -31,7 +31,7 @@ _axios.interceptors.response.use(
   function (error) {
     // 全局错误提示
     if (error.response.status !== 200 && error.response.data && error.response.data.msg === 'fail') {
-      // Vue.prototype.$Message.error(error.response.data.data)
+      Vue.prototype.$Message.error(error.response.data.data)
     }
     return Promise.reject(error);
   }

@@ -1,37 +1,54 @@
 <template>
-  <!-- 类别操作相关 -->
+  <!-- 文章操作相关 -->
   <div>
     <!-- 顶部操作条 -->
     <div class="top_bar border-bottom px-3 py-2">
       <div class="d-flex">
-        <Button type="primary" @click="modalShow = true">添加类别</Button>
+        <Button type="primary" @click="handleArticle({ key: 'create' })"
+          >添加文章</Button
+        >
         <Input
           class="ml-auto mr-3 top_bar_input"
           search
           enter-button
-          placeholder="类别名"
+          placeholder="文章标题"
           @on-search="search"
         />
       </div>
     </div>
     <!-- 内容表格 -->
     <div class="content-table">
-      <Table :columns="columns" :data="list">
+      <Table max-height="450" :columns="columns" :data="list">
         <template slot-scope="{ row }" slot="name">
-          <strong>{{ row.typename }}</strong>
+          <strong>{{ row.title }}</strong>
         </template>
+        <template slot-scope="{ row }" slot="typename">
+          <strong
+            :class="
+              row.type.typename === '原创' ? 'text-success' : 'text-warning'
+            "
+            >{{ row.type.typename }}</strong
+          >
+        </template>
+        <!-- <template slot-scope="{ row }" slot="nickname">
+          <strong>{{ row.user.nickname }}</strong>
+        </template> -->
         <template slot-scope="{ row }" slot="action">
           <Button
             type="primary"
             size="small"
             style="margin-right: 5px"
-            @click="edit(row.id)"
+            @click="handleArticle({ key: 'update', id: row.id })"
             >修改</Button
+          >
+          <Button type="warning" size="small" @click="bindTag(row.id)"
+            >标签绑定</Button
           >
           <Button
             type="error"
+            style="margin-left: 5px"
             size="small"
-            @click="remove(row.id, row.typename)"
+            @click="remove(row.id, row.title)"
             >删除</Button
           >
         </template>
@@ -46,22 +63,11 @@
         :page-size="limit"
         :current="page"
         show-sizer
+        :page-size-opts="[8, 20, 50]"
         @on-change="pageChange"
         @on-page-size-change="psChange"
-        :page-size-opts="[5, 8, 10]"
       ></Page>
     </div>
-
-    <Modal
-      v-model="modalShow"
-      title="添加类别"
-      :loading="modalLoad"
-      @on-ok="asyncOK"
-    >
-      <!-- 所属类别 -->
-
-      <Input v-model="typename" placeholder="输入类别名..." />
-    </Modal>
   </div>
 </template>
 
@@ -72,31 +78,44 @@ export default {
       list: [], // 用户列表
       columns: [
         {
+          type: "selection",
+          width: 60,
+          align: "center",
+        },
+        {
           title: "id",
           key: "id",
+          width: 60,
+        },
+        {
+          title: "标题名",
+          key: "typename",
+          slot: "name",
+          align: "center",
         },
         {
           title: "类别名",
           key: "typename",
-          slot: "name",
-        },
-        {
-          title: "所属类别id",
-          key: "typeof_id",
-        },
-        {
-          title: "Action",
-          slot: "action",
-          width: 150,
+          slot: "typename",
+          width: 80,
           align: "center",
+        },
+        // {
+        //   title: "作者",
+        //   key: "nickname",
+        //   slot: "nickname",
+        // },
+        {
+          title: "操作",
+          slot: "action",
+          width: 210,
+          align: "center",
+          fixed: "right",
         },
       ],
       loading: false,
-      modalLoad: true,
-      modalShow: false,
-      typename: "",
       page: 1,
-      limit: 8,
+      limit: 20,
       total: 0, // 总条数
     };
   },
@@ -106,7 +125,7 @@ export default {
   },
   methods: {
     async getTotal() {
-      const res = await this.axios.get("/api/user/count", { token: true });
+      const res = await this.axios.get("/api/article/count", { token: true });
       this.total = res.data;
     },
     // 获取所有列表
@@ -114,11 +133,11 @@ export default {
       this.list = [];
       this.loading = true;
       this.axios
-        .get(`/api/type/list?page=${this.page}&limit=${this.limit}`, {
+        .get(`/api/article/list?page=${this.page}&limit=${this.limit}`, {
           token: true,
         })
         .then((res) => {
-          // console.log(res);
+          console.log(res);
           this.list = res.data;
           this.loading = false;
         })
@@ -140,21 +159,16 @@ export default {
     search(e) {
       console.log(e);
     },
-    // 修改类名
-    edit(id) {
-      console.log(id);
-    },
-    // 删除类
+    // 删除文章
     remove(id, name) {
       this.$Modal.confirm({
         title: "提示",
-        content: "是否删除 " + name,
+        content: "是否删除<span style='color:gray;'> " + name + "</span>",
         onOk: () => {
           this.axios
-            .post("/api/type/delete", { id }, { token: true })
+            .post("/api/article/delete", { id }, { token: true })
             .then((res) => {
               this.$Message.success("删除成功");
-              this.getTotal();
               this.getData();
             })
             .catch((err) => {
@@ -162,18 +176,21 @@ export default {
             });
         },
       });
-
-      // if (res) this.$Message.success("删除成功");
     },
-    // 提交添加表单
-    asyncOK() {
-      this.axios
-        .post("/api/type/insert", { typename: this.typename }, { token: true })
-        .then((res) => {
-          this.modalShow = false;
-          this.getTotal();
-          this.getData();
-        });
+    handleArticle(e) {
+      switch (e.key) {
+        case "create":
+          this.$router.push({ name: "addArticle", params: { key: "create" } });
+          break;
+        case "update":
+          this.$router.push({
+            name: "addArticle",
+            params: { key: "update", id: e.id },
+          });
+          break;
+        default:
+          break;
+      }
     },
   },
 };
@@ -194,8 +211,8 @@ export default {
 }
 .content-table {
   position: relative;
-  padding: 10px;
   margin-top: 50px;
+  padding: 10px;
 }
 .page_bar {
   height: 55px;
@@ -203,5 +220,9 @@ export default {
   bottom: 0;
   right: 0;
   left: 0;
+}
+
+.ivu-checkbox-wrapper .ivu-checkbox-default {
+  padding-top: 5px !important;
 }
 </style>
