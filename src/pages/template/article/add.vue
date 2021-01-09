@@ -20,10 +20,8 @@
           <FormItem label="内 容">
             <!-- 内容编辑控件 -->
             <vue-editor
-              id="editor"
-              useCustomImageHandler
-              @image-added="handleImageAdded"
-              v-model="formItem.content"
+              :content="formItem.content"
+              @change="change"
             ></vue-editor>
           </FormItem>
           <FormItem label="封 面">
@@ -79,8 +77,9 @@
 </template>
 
 <script>
-import { VueEditor } from "vue2-editor";
+// import { VueEditor } from "vue2-editor";
 import { mapState } from "vuex";
+import VueEditor from "../../../components/common/vue-editor.vue";
 export default {
   components: { VueEditor },
   data() {
@@ -121,7 +120,7 @@ export default {
     this.init();
   },
   methods: {
-    // 表单初始化
+    //#region 表单初始化
     async init() {
       this.key = this.$route.params.key || "create";
       // 获取列表项
@@ -171,15 +170,10 @@ export default {
           });
       });
     },
-    // 编辑器中的图片上传,编辑器中一定要有 id="editor"
-    async handleImageAdded(file, Editor, cursorLocation, resetUploader) {
-      let formData = new FormData();
-      formData.append("files", file); // 定义字段名
-      const res = await this.axios.post("/api/upload", formData, {
-        token: true,
-      });
-      Editor.insertEmbed(cursorLocation, "image", res.data);
-      resetUploader();
+    //#endregion
+    // 编辑赋值（实现双向绑定）
+    change(content) {
+      this.formItem.content = content;
     },
     //#region 封面上传相关
     // 上传文件类型错误的回调

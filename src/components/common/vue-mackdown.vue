@@ -1,5 +1,6 @@
 <template>
-  <div>相册</div>
+  <!-- markdown 编辑器 -->
+  <div></div>
 </template>
 
 <script>

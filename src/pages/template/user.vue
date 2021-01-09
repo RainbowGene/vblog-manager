@@ -16,7 +16,17 @@
     </div>
     <!-- 内容表格 -->
     <div class="content-table">
-      <Table :columns="columns" :data="list"></Table>
+      <Table :columns="columns" :data="list">
+        <template slot-scope="{ row }" slot="action">
+          <Button
+            type="primary"
+            size="small"
+            style="margin-right: 5px"
+            @click="$router.push({ name: 'index', params: { id: row.id } })"
+            >查看</Button
+          >
+        </template>
+      </Table>
       <!-- 加载效果 -->
       <Spin v-if="loading" fix></Spin>
     </div>
@@ -46,7 +56,14 @@ export default {
       columns: [
         { title: "用户名", key: "username" },
         { title: "昵称", key: "nickname" },
-        { title: "权限", key: "auth" },
+        // { title: "权限", key: "auth" },
+        {
+          title: "操作",
+          slot: "action",
+          width: 210,
+          align: "center",
+          // fixed: "right",
+        },
       ],
       loading: false,
       page: 1,

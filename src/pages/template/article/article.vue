@@ -80,7 +80,8 @@ export default {
         {
           type: "selection",
           width: 60,
-          align: "center",
+          height: 40,
+          // fixed: "left",
         },
         {
           title: "id",
@@ -110,7 +111,7 @@ export default {
           slot: "action",
           width: 210,
           align: "center",
-          fixed: "right",
+          // fixed: "right",
         },
       ],
       loading: false,
@@ -137,7 +138,6 @@ export default {
           token: true,
         })
         .then((res) => {
-          console.log(res);
           this.list = res.data;
           this.loading = false;
         })
@@ -177,6 +177,10 @@ export default {
         },
       });
     },
+    // 为文章绑定标签
+    bindTag(id) {
+
+    },
     handleArticle(e) {
       switch (e.key) {
         case "create":
@@ -195,7 +199,7 @@ export default {
   },
 };
 </script>
-<style lang='scss' scoped>
+<style lang='scss'>
 .top_bar {
   position: absolute;
   top: 0;
@@ -222,7 +226,12 @@ export default {
   left: 0;
 }
 
-.ivu-checkbox-wrapper .ivu-checkbox-default {
-  padding-top: 5px !important;
+// 只针对content-table 下的 CheckBox
+.content-table .ivu-checkbox-wrapper {
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-block;
+  margin-right: 8px;
+  margin-top: 8px !important;
 }
 </style>
