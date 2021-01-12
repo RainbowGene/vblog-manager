@@ -178,9 +178,7 @@ export default {
       });
     },
     // 为文章绑定标签
-    bindTag(id) {
-
-    },
+    bindTag(id) {},
     handleArticle(e) {
       switch (e.key) {
         case "create":

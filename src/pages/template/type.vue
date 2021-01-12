@@ -25,7 +25,7 @@
             type="primary"
             size="small"
             style="margin-right: 5px"
-            @click="edit(row.id)"
+            @click="edit(row)"
             >修改</Button
           >
           <Button
@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     async getTotal() {
-      const res = await this.axios.get("/api/user/count", { token: true });
+      const res = await this.axios.get("/api/type/count", { token: true });
       this.total = res.data;
     },
     // 获取所有列表
@@ -141,8 +141,8 @@ export default {
       console.log(e);
     },
     // 修改类名
-    edit(id) {
-      console.log(id);
+    edit(row) {
+      console.log(row.id);
     },
     // 删除类
     remove(id, name) {
@@ -162,10 +162,8 @@ export default {
             });
         },
       });
-
-      // if (res) this.$Message.success("删除成功");
     },
-    // 提交添加表单
+    // 提交添加/修改表单
     asyncOK() {
       this.axios
         .post("/api/type/insert", { typename: this.typename }, { token: true })

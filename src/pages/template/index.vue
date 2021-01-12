@@ -3,7 +3,15 @@
   <div class="bootstrap-iso p-3">
     <!-- 卡片控件 -->
     <Card :bordered="false">
-      <p slot="title">{{ $route.params.id ? "用户资料" : "个人资料" }}</p>
+      <div class="info-head">
+        <div class="info-left">
+          {{ $route.params.id ? "用户资料" : "个人资料" }}
+        </div>
+        <div class="info-right">
+          <Button type="primary" @click="submit">提交修改</Button>
+        </div>
+      </div>
+      <p class="border-bottom my-3"></p>
       <Form :model="selfInfo" :label-width="80">
         <div class="form-body">
           <div class="form-left">
@@ -17,7 +25,7 @@
               <Input v-model="selfInfo.area" />
             </FormItem>
             <FormItem label="电话">
-              <Input v-model="selfInfo.ipone" />
+              <Input v-model="selfInfo.phone" />
             </FormItem>
             <FormItem label="签名">
               <Input
@@ -30,7 +38,14 @@
           </div>
           <div class="form-right">
             <FormItem label="头像">
-              <Avatar :src="selfInfo.avatar" />
+              <div class="avatar-con">
+                <div class="avatar-left">
+                  <Avatar :src="selfInfo.avatar" />
+                </div>
+                <div class="avatar-right ml-3">
+                  <b-upload-img @handleUpload="uploadSuccess"></b-upload-img>
+                </div>
+              </div>
             </FormItem>
             <FormItem label="性别">
               <RadioGroup v-model="selfInfo.sex">
@@ -64,12 +79,16 @@
 
 <script>
 import { mapState } from "vuex";
+import bUploadImg from "@/components/b-upload-img.vue";
 export default {
   data() {
     return {
       id: 0, // 查看用户id
       selfInfo: {},
     };
+  },
+  components: {
+    bUploadImg,
   },
   computed: {
     ...mapState({
@@ -99,6 +118,29 @@ export default {
           this.selfInfo = res.data;
         });
     },
+    // 头像上传成功
+    uploadSuccess(src) {
+      this.selfInfo.avatar = src;
+    },
+    // 修改提交
+    submit() {
+      console.log(this.selfInfo);
+      this.$Modal.confirm({
+        title: "提示",
+        content: "确认提交用户信息?",
+        onOk: () => {
+          this.axios
+            .post("/api/user/update", this.selfInfo, { token: true })
+            .then((res) => {
+              this.$Message.success("修改成功");
+              this.getData();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        },
+      });
+    },
   },
 };
 </script>
@@ -114,5 +156,18 @@ export default {
   .form-right {
     flex: 1;
   }
+}
+
+.info-head {
+  display: flex;
+  align-items: center;
+
+  .info-right {
+    margin-left: auto;
+  }
+}
+
+.avatar-con {
+  display: flex;
 }
 </style>

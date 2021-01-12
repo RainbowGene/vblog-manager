@@ -4,7 +4,7 @@
     <!-- 顶部操作条 -->
     <div class="top_bar border-bottom px-3 py-2">
       <div class="d-flex">
-        <Button type="primary">添加标签</Button>
+        <Button type="primary" @click="insert">添加标签</Button>
         <Input
           class="ml-auto mr-3 top_bar_input"
           search
@@ -25,10 +25,10 @@
             type="primary"
             size="small"
             style="margin-right: 5px"
-            @click="edit(row.id)"
+            @click="edit(row)"
             >修改</Button
           >
-          <Button type="error" size="small" @click="remove(row.id)"
+          <Button type="error" size="small" @click="remove(row.id, row.name)"
             >删除</Button
           >
         </template>
@@ -36,8 +36,6 @@
       <!-- 加载效果 -->
       <Spin v-if="loading" fix></Spin>
     </div>
-
-    <!-- 表格部分 -->
 
     <!-- 分页部分 -->
     <div class="page_bar d-flex align-items-center px-3 border-top">
@@ -51,6 +49,16 @@
         :page-size-opts="[5, 8, 10]"
       ></Page>
     </div>
+
+    <!-- add tag -->
+    <Modal
+      v-model="modalShow"
+      :title="isModel === 'insert' ? '添加' : '修改' + '标签'"
+      :loading="modalLoad"
+      @on-ok="asyncOK"
+    >
+      <Input v-model="tagname" placeholder="输入标签名..." />
+    </Modal>
   </div>
 </template>
 
@@ -80,6 +88,11 @@ export default {
       page: 1,
       limit: 8,
       total: 0, // 总条数
+      isModel: "insert", // 'insert' or 'update'
+      modalLoad: true,
+      modalShow: false,
+      id: 0,
+      tagname: "",
     };
   },
   mounted() {
@@ -88,7 +101,7 @@ export default {
   },
   methods: {
     async getTotal() {
-      const res = await this.axios.get("/api/user/count", { token: true });
+      const res = await this.axios.get("/api/tag/count", { token: true });
       this.total = res.data;
     },
     // 获取所有用户列表
@@ -122,13 +135,50 @@ export default {
     search(e) {
       console.log(e);
     },
-    // 修改类名
-    edit(id) {
-      console.log(id);
+    // 提交添加/修改
+    asyncOK() {
+      let obj = {};
+      obj.name = this.tagname;
+      if (this.isModel === "update") {
+        obj.id = this.id;
+      }
+      this.axios
+        .post(`/api/tag/${this.isModel}`, obj, { token: true })
+        .then((res) => {
+          this.modalShow = false;
+          this.getTotal();
+          this.getData();
+        });
     },
-    // 删除类
-    remove(id) {
-      console.log(id);
+    insert() {
+      this.modalShow = true;
+      this.isModel = "insert";
+    },
+    // 修改类名
+    edit(row) {
+      this.modalShow = true;
+      this.isModel = "update";
+      this.id = row.id;
+      this.tagname = row.name;
+    },
+    // 删除tag
+    remove(id, name) {
+      this.$Modal.confirm({
+        title: "提示",
+        content: "是否删除 " + name,
+        onOk: () => {
+          this.axios
+            .post("/api/tag/delete", { id }, { token: true })
+            .then((res) => {
+              this.$Message.success("删除成功");
+              this.getTotal();
+              this.getData();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        },
+      });
     },
   },
 };

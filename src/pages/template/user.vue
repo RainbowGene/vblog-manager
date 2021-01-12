@@ -109,7 +109,7 @@ export default {
     },
     // 关键字查询
     search(e) {
-      console.log(e);
+      if (!e.replace(/\s*/g, "")) return this.getData();
     },
   },
 };
